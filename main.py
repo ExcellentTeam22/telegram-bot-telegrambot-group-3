@@ -4,7 +4,7 @@ import sympy
 import requests
 
 TOKEN = '5692289016:AAE5u76CPfvDUUtqBFhzVwgGlbVpT-DtUB4'
-TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://a653-2a0d-6fc7-404-dbd9-54f2-f585-46cc-2b34.ngrok.io/message'.format(TOKEN)
+TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://351e-2a0d-6fc7-404-dbd9-54f2-f585-46cc-2b34.ngrok.io/message'.format(TOKEN)
 
 requests.get(TELEGRAM_INIT_WEBHOOK_URL)
 
@@ -31,17 +31,17 @@ def palindrome(message_list: list[str]) -> str:
     return "Palindrome" if is_palindrome_res else "Not palindrome!"
 
 
-def sqrt(message_list: list[str]) -> str:
+def sqrt_check(message_list: list[str]) -> str:
     is_has_int_sqrt = False
     if len(message_list) == 1:
         if message_list[0].isdigit():
             num = int(message_list[0])
-            is_has_int_sqrt = num > 0 and isinstance(sqrt(num), int)
+            is_has_int_sqrt = num > 0 and sqrt(num).is_integer()
 
-    return "Has integer sqrt" if is_has_int_sqrt else "No integer sqrt."
+    return "Has integer square root." if is_has_int_sqrt else "No integer square root."
 
 
-OPERATIONS = {"/prime": prime, "/palindrome": palindrome, "/sqrt": sqrt}  # , "/factorial": factorial}
+OPERATIONS = {"/prime": prime, "/palindrome": palindrome, "/sqrt": sqrt_check}  # , "/factorial": factorial}
 
 
 @app.route('/message', methods=["POST"])
@@ -71,4 +71,3 @@ def get_first_key() -> str:
 
 if __name__ == '__main__':
     app.run(port=5002)
-
