@@ -33,7 +33,7 @@ def handle_message():
         if user_input_list[0].isdigit():
             is_prime_res = is_prime(int(user_input_list[0]))
 
-    return_msg = "Is prime!" if is_prime_res else "Not prime"
+    return_msg = "The number is prime!" if is_prime_res else "The number isn't prime"
     res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}"
                        .format(TOKEN, chat_id, return_msg))
     return Response("success")
