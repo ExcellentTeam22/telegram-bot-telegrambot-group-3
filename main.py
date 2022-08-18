@@ -1,43 +1,74 @@
-from flask import Flask, Response, request
+from flask import Flask, Response, request, redirect, url_for
 from math import sqrt
+import sympy
 import requests
 
 TOKEN = '5692289016:AAE5u76CPfvDUUtqBFhzVwgGlbVpT-DtUB4'
-TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://b673-82-80-173-170.ngrok.io/message'.format(TOKEN)
+TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://a653-2a0d-6fc7-404-dbd9-54f2-f585-46cc-2b34.ngrok.io/message'.format(TOKEN)
 
 requests.get(TELEGRAM_INIT_WEBHOOK_URL)
 
 app = Flask(__name__)
 
 
-def is_prime(num: int) -> bool:
-    if num > 1:
-        # check for factors
-        for i in range(2, int(sqrt(num))+ 1):
-            if (num % i) == 0:
-                return False
-        return True
-    return False
+def prime(message_list: list[str]) -> str:
+    is_prime_res = False
+    if len(message_list) == 1:
+        if message_list[0].isdigit():
+            num = int(message_list[0])
+            if num == 2 or num % 2:
+                is_prime_res = sympy.isprime(num)
+            else:
+                return "Come on dude, you know even numbers are not prime"
+
+    return "The number is prime!" if is_prime_res else "The number isn't prime"
+
+
+def palindrome(message_list: list[str]) -> str:
+    is_palindrome_res = False
+    if len(message_list) == 1:
+        is_palindrome_res = message_list[0].isdigit() and message_list[0] == message_list[0][::-1]
+    return "Palindrome" if is_palindrome_res else "Not palindrome!"
+
+
+def sqrt(message_list: list[str]) -> str:
+    is_has_int_sqrt = False
+    if len(message_list) == 1:
+        if message_list[0].isdigit():
+            num = int(message_list[0])
+            is_has_int_sqrt = num > 0 and isinstance(sqrt(num), int)
+
+    return "Has integer sqrt" if is_has_int_sqrt else "No integer sqrt."
+
+
+OPERATIONS = {"/prime": prime, "/palindrome": palindrome, "/sqrt": sqrt}  # , "/factorial": factorial}
 
 
 @app.route('/message', methods=["POST"])
 def handle_message():
-    chat_id = request.get_json()['message']['chat']['id']
-    user_input = request.get_json()['message']['text']
-    print(chat_id)
-    print(user_input)
-
-    user_input_list = user_input.split()
-    is_prime_res = False
-    if len(user_input_list) == 1:
-        if user_input_list[0].isdigit():
-            is_prime_res = is_prime(int(user_input_list[0]))
-
-    return_msg = "The number is prime!" if is_prime_res else "The number isn't prime"
-    res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}"
-                       .format(TOKEN, chat_id, return_msg))
+    print("here")
+    print(request.get_json())
+    first_key = get_first_key()
+    if first_key:
+        chat_id = request.get_json()[first_key]['chat']['id'] if first_key else None
+        user_input = request.get_json()[first_key]['text']
+        user_input_list = user_input.split()
+        key = user_input_list[0]
+        return_msg = OPERATIONS[key](user_input_list[1:]) if key in OPERATIONS.keys() else "Invalid command."
+        res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(TOKEN, chat_id, return_msg))
+        # return redirect(url_for('handle_prime'))
     return Response("success")
+
+
+def get_first_key() -> str:
+    first_key = None
+    if 'message' in request.get_json().keys():
+        first_key = 'message'
+    if 'edited_message' in request.get_json():
+        first_key = 'edited_message'
+    return first_key
 
 
 if __name__ == '__main__':
     app.run(port=5002)
+
