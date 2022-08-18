@@ -11,7 +11,7 @@ requests.get(TELEGRAM_INIT_WEBHOOK_URL)
 app = Flask(__name__)
 
 
-def prime(message_list: list[str]) -> str:
+def prime_check(message_list: list[str]) -> str:
     is_prime_res = False
     if len(message_list) == 1:
         if message_list[0].isdigit():
@@ -24,7 +24,7 @@ def prime(message_list: list[str]) -> str:
     return "The number is prime!" if is_prime_res else "The number isn't prime"
 
 
-def is_factorial(message_list: list[str]) -> str:
+def factorial_check(message_list: list[str]) -> str:
     is_factorial_res = False
     if len(message_list) == 1 and message_list[0].isdigit():
         num = int(message_list[0])
@@ -44,7 +44,7 @@ def is_factorial(message_list: list[str]) -> str:
     return "Factorial" if is_factorial_res else "Not factorial!"
 
 
-def palindrome(message_list: list[str]) -> str:
+def palindrome_check(message_list: list[str]) -> str:
     is_palindrome_res = False
     if len(message_list) == 1:
         is_palindrome_res = message_list[0].isdigit() and message_list[0] == message_list[0][::-1]
@@ -61,7 +61,7 @@ def sqrt_check(message_list: list[str]) -> str:
     return "Has integer square root." if is_has_int_sqrt else "No integer square root."
 
 
-OPERATIONS = {"/prime": prime, "/palindrome": palindrome, "/sqrt": sqrt_check, "/factorial": is_factorial}
+OPERATIONS = {"/prime": prime_check, "/palindrome": palindrome_check, "/sqrt": sqrt_check, "/factorial": factorial_check}
 
 
 @app.route('/message', methods=["POST"])
