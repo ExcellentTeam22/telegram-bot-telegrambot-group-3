@@ -1,10 +1,10 @@
 from flask import Flask, Response, request, redirect, url_for
-from math import sqrt
+from math import sqrt, factorial
 import sympy
 import requests
 
 TOKEN = '5692289016:AAE5u76CPfvDUUtqBFhzVwgGlbVpT-DtUB4'
-TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://351e-2a0d-6fc7-404-dbd9-54f2-f585-46cc-2b34.ngrok.io/message'.format(TOKEN)
+TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://c2cd-82-80-173-170.ngrok.io/message'.format(TOKEN)
 
 requests.get(TELEGRAM_INIT_WEBHOOK_URL)
 
@@ -24,6 +24,26 @@ def prime(message_list: list[str]) -> str:
     return "The number is prime!" if is_prime_res else "The number isn't prime"
 
 
+def is_factorial(message_list: list[str]) -> str:
+    is_factorial_res = False
+    if len(message_list) == 1 and message_list[0].isdigit():
+        num = int(message_list[0])
+
+        if num == 0:
+            is_factorial_res = True
+
+        for i in range(num + 1):
+            factorial_res = factorial(i)
+            if factorial_res == num:
+                is_factorial_res = True
+                break
+            elif factorial_res > num:
+                is_factorial_res = False
+                break
+
+    return "Factorial" if is_factorial_res else "Not factorial!"
+
+
 def palindrome(message_list: list[str]) -> str:
     is_palindrome_res = False
     if len(message_list) == 1:
@@ -41,7 +61,7 @@ def sqrt_check(message_list: list[str]) -> str:
     return "Has integer square root." if is_has_int_sqrt else "No integer square root."
 
 
-OPERATIONS = {"/prime": prime, "/palindrome": palindrome, "/sqrt": sqrt_check}  # , "/factorial": factorial}
+OPERATIONS = {"/prime": prime, "/palindrome": palindrome, "/sqrt": sqrt_check, "/factorial": is_factorial}
 
 
 @app.route('/message', methods=["POST"])
