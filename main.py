@@ -1,6 +1,4 @@
-from flask import Flask
-
-from requests import Response
+from flask import Flask, request, Response
 import requests
 
 TOKEN = '5692289016:AAE5u76CPfvDUUtqBFhzVwgGlbVpT-DtUB4'
