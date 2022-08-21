@@ -4,9 +4,30 @@ import requests
 TOKEN = '5559141211:AAGsg_iBhfZd-Wr_lW8bZN0kqREdPKP4g5w'
 TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://c2cd-82-80-173-170.ngrok.io/message'.format(TOKEN)
 
+API_KEY = "0ecef89c9794b99021d3c035ab117555"
+BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
+
 requests.get(TELEGRAM_INIT_WEBHOOK_URL)
 
 app = Flask(__name__)
+
+
+def get_weather(city_name):
+    complete_url = BASE_URL + "appid=" + API_KEY + "&q=" + city_name + "&units=metric"
+
+    response = requests.get(complete_url)
+    weather = response.json()
+
+    if weather["cod"] != "404":
+        current_temperature = weather["main"]["temp"]
+        status = weather["weather"][0]["main"]
+        return status == "Rain", int(current_temperature)
+
+    else:
+        return None  # if the city was not found
+
+
+OPERATIONS = {"/city": get_weather}
 
 
 @app.route('/message', methods=["POST"])
