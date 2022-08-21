@@ -17,7 +17,16 @@ class SingletonMeta(type):
 
 
 class FindOutfit(metaclass=SingletonMeta):
+    """ A singletone class, calculate the best outfit for user.
+    :ivar __temperature_dict: Dictionary that it's keys are temperature between -50 to 50 and its values are weather's
+     type.
+    :ivar __outfit_dict:Dictionary that it's keys are weather's types and gender, and it's values are strings with
+     best outfit.
+    :ivar __lowest_key: The lowest __temperature_dict's key.
+    :ivar:__highest_key: The highest  __temperature_dict's key.
+    """
     def __int__(self):
+        """Constructor"""
         self.__temperature_dict = {}
         self.__outfit_dict = {}
         self.__lowest_key = -50
@@ -26,6 +35,7 @@ class FindOutfit(metaclass=SingletonMeta):
         self.__create_outfit_dict()
 
     def __create_temperature_dict(self):
+        """Create temperature dictionary."""
         for num in range(self.__lowest_key, self.__highest_key + 1):
             if num < 2:
                 self.__temperature_dict[num] = "Very cold"
@@ -37,6 +47,9 @@ class FindOutfit(metaclass=SingletonMeta):
                 self.__temperature_dict[num] = "Hot"
 
     def __create_outfit_dict(self):
+        """Create outfit dictionary.
+        :return: None
+        """
         self.__outfit_dict[("Very cold", consts.MALE)] = "You should wear several layers, put on a long shirt," \
                                                          " coat and long pants, thick socks, and closed shoes." \
                                                          "You should also add a scarf."
@@ -55,9 +68,15 @@ class FindOutfit(metaclass=SingletonMeta):
         self.__outfit_dict[("Hot", consts.FEMALE)] = "You should wear shorts, a short shirt, or a dress, maybe a " \
                                                      "skirt, and open shoes."
 
-    """, user: User"""
     def get_best_outfit_message(self, lowest_temperature: int, highest_temperature: int,
-                                is_rainy: bool = False) -> str:
+                                is_rainy: bool = False, user: User) -> str:
+        """Calculate the best outfit for a user by its details and the temperature and return it as a string.
+        :param lowest_temperature: The lowest temperature at a day.
+        :param highest_temperature: The highest temperature at a day.
+        :param is_rainy: Boolean that says if the day is rainy or not.
+        :param user: User class that includes data like it's gender and the bonus he got.
+        :return:
+        """
         lowest_temperature_in_dict = max(lowest_temperature + user.bonuse, self.__lowest_key)
         highest_temperature_in_dict = min(highest_temperature + user.bonuse, self.__highest_key)
         night_outfit = self.__outfit_dict[(self.__temperature_dict[lowest_temperature_in_dict], user.gender)]
