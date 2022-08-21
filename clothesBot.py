@@ -2,7 +2,7 @@ from flask import Flask, Response, request, redirect, url_for
 import requests
 
 TOKEN = '5559141211:AAGsg_iBhfZd-Wr_lW8bZN0kqREdPKP4g5w'
-TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://c2cd-82-80-173-170.ngrok.io/message'.format(TOKEN)
+TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://eb66-82-80-173-170.ngrok.io/message'.format(TOKEN)
 
 requests.get(TELEGRAM_INIT_WEBHOOK_URL)
 
@@ -13,7 +13,7 @@ app = Flask(__name__)
 def handle_message():
     first_key = get_first_key()
     if first_key:
-        chat_id = request.get_json()[first_key]['chat']['id'] if first_key else None
+        chat_id = request.get_json()[first_key]['chat']['id']
         user_input = request.get_json()[first_key]['text']
         # user_input_list = user_input.split()
         # validation
