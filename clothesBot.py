@@ -1,22 +1,18 @@
 from flask import Flask, Response, request, redirect, url_for
 import requests
 import Classes
+import clothes_data_structure as clothes
+import consts
 
-TOKEN = '5559141211:AAGsg_iBhfZd-Wr_lW8bZN0kqREdPKP4g5w'
-TELEGRAM_INIT_WEBHOOK_URL = 'https://api.telegram.org/bot{}/setWebhook?url=https://eb66-82-80-173-170.ngrok.io/message'.format(TOKEN)
-# INITIAL_REGISTRATION = True
 user_dic = {}
 
-API_KEY = "0ecef89c9794b99021d3c035ab117555"
-BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
-
-requests.get(TELEGRAM_INIT_WEBHOOK_URL)
+requests.get(consts.TELEGRAM_INIT_WEBHOOK_URL)
 
 app = Flask(__name__)
 
 
-def set_name(chat_id:str, name: list[str]):
-    user_dic[chat_id].set_name(name)
+def set_name(chat_id: str, name: list[str]):
+    user_dic[chat_id].set_username(name)
 
 
 def set_gender(chat_id: str, gender: list[str]):
@@ -31,24 +27,22 @@ def initial_registration(first_key: str, chat_id: str):
     if chat_id not in user_dic.keys():
         user = Classes.User()
         user_dic[chat_id] = user
-    else:
-        if user_dic[chat_id].get_name() == "":
-            requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(TOKEN, chat_id,
-                                                                                    'What is your name? (/name ...)'))
-        elif user_dic[chat_id].get_gender() == "":
-            requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(TOKEN, chat_id,
-                                                                    'What is your gender? (/gender M or /gender F)'))
 
-        elif user_dic[chat_id].get_is_suffer() == "":
-            requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(TOKEN, chat_id,
+    if user_dic[chat_id].get_name() == "":
+        requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(consts.TOKEN, chat_id,
+                                                                                    'What is your name? (/name ...)'))
+    elif user_dic[chat_id].get_gender() == "":
+        requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(consts.TOKEN, chat_id,
+                                                            'What is your gender? (/gender Male or /gender Female)'))
+
+    elif user_dic[chat_id].get_is_suffer() == "":
+        requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(consts.TOKEN, chat_id,
                                                             'Do you suffer when it\'s hot outside? (/suffer Y or N)'))
 
 
-
-
-def get_weather(city_name):
-    complete_url = BASE_URL + "appid=" + API_KEY + "&q=" + city_name + "&units=metric"
-
+def get_weather(city_name: list[str]):
+    city_name = "".join(city_name)
+    complete_url = consts.BASE_URL + "appid=" + consts.API_KEY + "&q=" + city_name + "&units=metric"
     response = requests.get(complete_url)
     weather = response.json()
 
@@ -56,12 +50,11 @@ def get_weather(city_name):
         current_temperature = weather["main"]["temp"]
         status = weather["weather"][0]["main"]
         return status == "Rain", int(current_temperature)
-
     else:
         return None  # if the city was not found
 
 
-OPERATIONS = {"/name": set_name, "/gender": set_gender, "/sufffer": set_suffer, "/city": get_weather}
+OPERATIONS = {"/name": set_name, "/gender": set_gender, "/sufffer": set_suffer}
 
 
 @app.route('/message', methods=["POST"])
@@ -75,16 +68,24 @@ def handle_message():
         try:
             return_msg = OPERATIONS[key](chat_id, user_input_list[1:]) if key in OPERATIONS.keys() else "Invalid command."
         except ValueError as error:
-            requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(TOKEN, chat_id, error))
+            requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(consts.TOKEN, chat_id, error))
 
-        if chat_id not in user_dic.keys() or user_dic[chat_id].get_counter() < Classes.ATTRIBUTE_NUMBER:
+        if chat_id not in user_dic.keys() or user_dic[chat_id].get_counter() < consts.ATTRIBUTE_NUMBER:
             initial_registration(first_key, chat_id)
 
         else:
             user_dic[chat_id].calculate_bonus()
-            requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(TOKEN, chat_id,
+
+            if user_input_list[0] == '/city':
+                is_rain, temp = get_weather(user_input_list[1:])
+                requests.get(
+                    "https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(consts.TOKEN, chat_id,
+                                                           clothes.FindOutfit().get_best_outfit_message(is_rain, temp)))
+
+            else:
+                requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(consts.TOKEN, chat_id,
                                         "Hello {}, please enter city (/city ...)".format(user_dic[chat_id].get_name())))
-            # Lee's code
+
     return Response("success")
 
 

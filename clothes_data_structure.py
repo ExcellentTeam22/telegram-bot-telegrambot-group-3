@@ -1,4 +1,6 @@
 import consts
+import Classes
+
 
 class SingletonMeta(type):
     """From https://refactoring.guru/design-patterns/singleton/python/example, singleton meta class"""
@@ -68,8 +70,8 @@ class FindOutfit(metaclass=SingletonMeta):
         self.__outfit_dict[("Hot", consts.FEMALE)] = "You should wear shorts, a short shirt, or a dress, maybe a " \
                                                      "skirt, and open shoes."
 
-    def get_best_outfit_message(self, lowest_temperature: int, highest_temperature: int,
-                                is_rainy: bool = False, user: User) -> str:
+    def get_best_outfit_message(self, temperature: int,
+                                user: Classes.User, is_rainy: bool = False) -> str:
         """Calculate the best outfit for a user by its details and the temperature and return it as a string.
         :param lowest_temperature: The lowest temperature at a day.
         :param highest_temperature: The highest temperature at a day.
@@ -77,12 +79,16 @@ class FindOutfit(metaclass=SingletonMeta):
         :param user: User class that includes data like it's gender and the bonus he got.
         :return:
         """
-        lowest_temperature_in_dict = max(lowest_temperature + user.bonuse, self.__lowest_key)
-        highest_temperature_in_dict = min(highest_temperature + user.bonuse, self.__highest_key)
-        night_outfit = self.__outfit_dict[(self.__temperature_dict[lowest_temperature_in_dict], user.gender)]
-        day_outfit = self.__outfit_dict[(self.__temperature_dict[highest_temperature_in_dict], user.gender)]
-        return_message = "Recommendation" + (" for day: " + day_outfit + "\nRecommendation for night: " + night_outfit)\
-            if night_outfit != day_outfit else (": " + day_outfit)
+        # temperature_in_dict = max(temperature + user.get_degrees_bonus(), self.__lowest_key)
+        temp_temperature = temperature + user.get_degrees_bonus()
+        temperature_in_dict = temp_temperature if self.__lowest_key <= temp_temperature <= self.__highest_key else \
+            self.__highest_key if self.__highest_key < temp_temperature else self.__lowest_key
+        # highest_temperature_in_dict = min(temperature + user.get_degrees_bonus(), self.__highest_key)
+        # night_outfit = self.__outfit_dict[(self.__temperature_dict[temperature_in_dict], user.gender)]
+        outfit = self.__outfit_dict[(self.__temperature_dict[temperature_in_dict], user.gender)]
+        # return_message = "Recommendation" + (" for day: " + day_outfit + "\nRecommendation for night: " + night_outfit)\
+        #     if night_outfit != day_outfit else (": " + day_outfit)
+        return_message = "Recommendation: " + outfit
         if is_rainy:
             return_message += "\nDon't forget to take a raincoat and an umbrella. It's going to be rainy outside."
         return return_message

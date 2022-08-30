@@ -1,4 +1,4 @@
-ATTRIBUTE_NUMBER = 3
+import consts
 
 
 class User:
@@ -23,25 +23,25 @@ class User:
         return self.counter
 
     # setter methods
-    def set_name(self, user_input: list[str]):
+    def set_username(self, user_input: list[str]):
         self.name = "".join(user_input)
         if self.name == "":
             raise ValueError("Invalid name, enter your name.")
-        if self.counter < ATTRIBUTE_NUMBER:
+        if self.counter < consts.ATTRIBUTE_NUMBER:
             self.counter += 1
 
     def set_gender(self, user_input: list[str]):
-        if len(user_input) != 1 or user_input[0].lower() != "male" or user_input[0].lower() != "female":
+        if len(user_input) != 1 or (user_input[0].lower() != "male" and user_input[0].lower() != "female"):
             raise ValueError("Invalid gender, enter male or female.")
         self.gender = consts.MALE if user_input[0].lower() == "male" else consts.FEMALE
-        if self.counter < ATTRIBUTE_NUMBER:
+        if self.counter < consts.ATTRIBUTE_NUMBER:
             self.counter += 1
 
     def set_is_suffer(self, user_input: list[str]):
-        if len(user_input) != 1 or user_input[0].lower() != "y" or user_input[0].lower() != "n":
+        if len(user_input) != 1 or (user_input[0].lower() != "y" and user_input[0].lower() != "n"):
             raise ValueError("Invalid input, enter 'Y' for yes or 'N' for No.")
         self.is_suffer = True if user_input[0].lower() == "y" else False
-        if self.counter < ATTRIBUTE_NUMBER:
+        if self.counter < consts.ATTRIBUTE_NUMBER:
             self.counter += 1
 
     # other methods
